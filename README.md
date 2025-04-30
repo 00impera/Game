@@ -829,4 +829,39 @@
                 // If we're broke, stop mining
                 if (gameState.coins < 0) {
                     gameState.coins = 0;
-                    addLogEntry("You ran out of coins! Mining stopped.",
+                    addLogEntry("You ran out of coins! Mining stopped.", "error");
+                    toggleMining();
+                    showNotification("You ran out of coins!");
+                    return;
+                }
+                
+                // Update mining progress
+                gameState.miningProgress += effectiveHashrate / gameState.currentPool.difficulty;
+                miningProgressElement.value = gameState.miningProgress;
+                
+                // Check if a block is found
+                if (gameState.miningProgress >= 100) {
+                    gameState.miningProgress = 0;
+                    miningProgressElement.value = 0;
+                    
+                    // Reward player
+                    gameState.coins += gameState.currentPool.reward;
+                    gameState.totalMined += gameState.currentPool.reward;
+                    gameState.blocksFound++;
+                    
+                    addLogEntry(`Block found! Reward: ${gameState.currentPool.reward} coins`, "success");
+                    showNotification("Block found!");
+                }
+                
+                updateResourceDisplay();
+            }
+        }
+
+        // Start the game loop
+        setInterval(gameLoop, 1000);
+
+        // Initialize the game
+        initGame();
+    </script>
+</body>
+</html>
